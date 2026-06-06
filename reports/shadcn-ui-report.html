@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitScope Report</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #334155;
+    --text: #f1f5f9;
+    --text2: #94a3b8;
+    --accent: #38bdf8;
+    --green: #4ade80;
+    --red: #fb7185;
+    --yellow: #fbbf24;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+  header {
+    text-align: center;
+    padding: 3rem 0;
+    border-bottom: 1px solid var(--surface2);
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, var(--accent), #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+  }
+  header p { color: var(--text2); font-size: 1.1rem; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid var(--surface2);
+    transition: transform 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-2px); }
+  .stat-card .value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+  }
+  .stat-card .label {
+    font-size: 0.85rem;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  .stat-card.green .value { color: var(--green); }
+  .stat-card.red .value { color: var(--red); }
+  .stat-card.yellow .value { color: var(--yellow); }
+  .stat-card.purple .value { color: #a78bfa; }
+  section {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--surface2);
+  }
+  section h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .chart-container {
+    position: relative;
+    height: 300px;
+    margin: 1rem 0;
+  }
+  .authors-table, .files-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .authors-table th, .files-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    color: var(--text2);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--surface2);
+  }
+  .authors-table td, .files-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--surface2);
+  }
+  .authors-table tr:hover, .files-table tr:hover {
+    background: rgba(56, 189, 248, 0.05);
+  }
+  .green { color: var(--green); }
+  .red { color: var(--red); }
+  code {
+    background: var(--surface2);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    word-break: break-all;
+  }
+  .empty-state {
+    color: var(--text2);
+    text-align: center;
+    padding: 3rem;
+    font-style: italic;
+  }
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 768px) {
+    .charts-row { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .container { padding: 1rem; }
+  }
+  footer {
+    text-align: center;
+    color: var(--text2);
+    font-size: 0.85rem;
+    padding: 2rem 0;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>📊 GitScope Report</h1>
+    <p>main branch · 50 commits shown (50 total)</p>
+    <p>Jun 5, 2026 — May 17, 2026</p>
+  </header>
+
+  <div class="stats-grid">
+    <div class="stat-card"><span class="value">50</span><span class="label">Commits</span></div>
+    <div class="stat-card green"><span class="value">+104,827</span><span class="label">Additions</span></div>
+    <div class="stat-card red"><span class="value">-45,974</span><span class="label">Deletions</span></div>
+    <div class="stat-card purple"><span class="value">21</span><span class="label">Contributors</span></div>
+    <div class="stat-card"><span class="value">3</span><span class="label">Branches</span></div>
+    <div class="stat-card yellow"><span class="value">3</span><span class="label">Longest Streak (days)</span></div>
+    <div class="stat-card purple"><span class="value">12.5</span><span class="label">Avg/Week</span></div>
+    <div class="stat-card"><span class="value">3016</span><span class="label">Changes/Commit</span></div>
+  </div>
+
+  <section>
+    <h2>📈 Contribution Timeline</h2>
+    <div class="chart-container">
+        <canvas id="timelineChart"></canvas>
+       </div>
+  </section>
+
+  <div class="charts-row">
+    <section>
+      <h2>🕐 Hourly Activity</h2>
+      <div class="chart-container"><canvas id="hourChart"></canvas></div>
+    </section>
+    <section>
+      <h2>📅 Day of Week</h2>
+      <div class="chart-container"><canvas id="dayChart"></canvas></div>
+    </section>
+  </div>
+
+  <section>
+    <h2>👥 Contributors</h2>
+    <table class="authors-table">
+        <thead><tr><th>Author</th><th>Commits</th><th>Additions</th><th>Deletions</th><th>First Commit</th><th>Last Commit</th></tr></thead>
+        <tbody><tr>
+          <td><strong>shadcn</strong></td>
+          <td>24</td>
+          <td class="green">+101,322</td>
+          <td class="red">-45,713</td>
+          <td>May 17, 2026</td>
+          <td>Jun 5, 2026</td>
+        </tr><tr>
+          <td><strong>github-actions[bot]</strong></td>
+          <td>6</td>
+          <td class="green">+73</td>
+          <td class="red">-73</td>
+          <td>May 21, 2026</td>
+          <td>Jun 1, 2026</td>
+        </tr><tr>
+          <td><strong>Dominik K.</strong></td>
+          <td>2</td>
+          <td class="green">+13</td>
+          <td class="red">-0</td>
+          <td>May 26, 2026</td>
+          <td>May 26, 2026</td>
+        </tr><tr>
+          <td><strong>Harshitha Sompura</strong></td>
+          <td>1</td>
+          <td class="green">+10</td>
+          <td class="red">-5</td>
+          <td>Jun 5, 2026</td>
+          <td>Jun 5, 2026</td>
+        </tr><tr>
+          <td><strong>Andrew Luo</strong></td>
+          <td>1</td>
+          <td class="green">+7</td>
+          <td class="red">-0</td>
+          <td>Jun 5, 2026</td>
+          <td>Jun 5, 2026</td>
+        </tr><tr>
+          <td><strong>Anish K Srinivasan</strong></td>
+          <td>1</td>
+          <td class="green">+7</td>
+          <td class="red">-0</td>
+          <td>Jun 5, 2026</td>
+          <td>Jun 5, 2026</td>
+        </tr><tr>
+          <td><strong>joncoronel</strong></td>
+          <td>1</td>
+          <td class="green">+7</td>
+          <td class="red">-0</td>
+          <td>Jun 5, 2026</td>
+          <td>Jun 5, 2026</td>
+        </tr><tr>
+          <td><strong>Subhadip Jana</strong></td>
+          <td>1</td>
+          <td class="green">+7</td>
+          <td class="red">-0</td>
+          <td>Jun 4, 2026</td>
+          <td>Jun 4, 2026</td>
+        </tr><tr>
+          <td><strong>Ajay Patel</strong></td>
+          <td>1</td>
+          <td class="green">+1</td>
+          <td class="red">-1</td>
+          <td>Jun 1, 2026</td>
+          <td>Jun 1, 2026</td>
+        </tr><tr>
+          <td><strong>Raashish Aggarwal</strong></td>
+          <td>1</td>
+          <td class="green">+185</td>
+          <td class="red">-60</td>
+          <td>May 28, 2026</td>
+          <td>May 28, 2026</td>
+        </tr><tr>
+          <td><strong>Artyom Konoplyov</strong></td>
+          <td>1</td>
+          <td class="green">+51</td>
+          <td class="red">-6</td>
+          <td>May 27, 2026</td>
+          <td>May 27, 2026</td>
+        </tr><tr>
+          <td><strong>LN</strong></td>
+          <td>1</td>
+          <td class="green">+13</td>
+          <td class="red">-0</td>
+          <td>May 26, 2026</td>
+          <td>May 26, 2026</td>
+        </tr><tr>
+          <td><strong>Antunes</strong></td>
+          <td>1</td>
+          <td class="green">+13</td>
+          <td class="red">-0</td>
+          <td>May 25, 2026</td>
+          <td>May 25, 2026</td>
+        </tr><tr>
+          <td><strong>Shuta Kumano</strong></td>
+          <td>1</td>
+          <td class="green">+13</td>
+          <td class="red">-0</td>
+          <td>May 22, 2026</td>
+          <td>May 22, 2026</td>
+        </tr><tr>
+          <td><strong>KapishDima</strong></td>
+          <td>1</td>
+          <td class="green">+119</td>
+          <td class="red">-111</td>
+          <td>May 22, 2026</td>
+          <td>May 22, 2026</td>
+        </tr><tr>
+          <td><strong>Tushar Jolly</strong></td>
+          <td>1</td>
+          <td class="green">+16</td>
+          <td class="red">-1</td>
+          <td>May 20, 2026</td>
+          <td>May 20, 2026</td>
+        </tr><tr>
+          <td><strong>Matt</strong></td>
+          <td>1</td>
+          <td class="green">+13</td>
+          <td class="red">-0</td>
+          <td>May 20, 2026</td>
+          <td>May 20, 2026</td>
+        </tr><tr>
+          <td><strong>Fabian Hiller</strong></td>
+          <td>1</td>
+          <td class="green">+2,917</td>
+          <td class="red">-3</td>
+          <td>May 20, 2026</td>
+          <td>May 20, 2026</td>
+        </tr><tr>
+          <td><strong>Charlie Hopkins-Brinicombe</strong></td>
+          <td>1</td>
+          <td class="green">+14</td>
+          <td class="red">-1</td>
+          <td>May 19, 2026</td>
+          <td>May 19, 2026</td>
+        </tr><tr>
+          <td><strong>Parth Sharma</strong></td>
+          <td>1</td>
+          <td class="green">+13</td>
+          <td class="red">-0</td>
+          <td>May 18, 2026</td>
+          <td>May 18, 2026</td>
+        </tr><tr>
+          <td><strong>lcorrigan704</strong></td>
+          <td>1</td>
+          <td class="green">+13</td>
+          <td class="red">-0</td>
+          <td>May 18, 2026</td>
+          <td>May 18, 2026</td>
+        </tr></tbody>
+       </table>
+  </section>
+
+  <section>
+    <h2>📁 Most Changed Files</h2>
+    <p class="empty-state">No file data available.</p>
+  </section>
+
+  <!-- Support Section -->
+  <section style="text-align:center;background:linear-gradient(135deg,rgba(74,222,128,0.08),rgba(56,189,248,0.08));border:1px solid rgba(74,222,128,0.3);">
+    <h2 style="color:var(--green);justify-content:center;">⚡ Support GitScope</h2>
+    <p style="color:var(--text2);margin-bottom:1rem;">Found this report useful? Support the project — every coffee helps! ☕</p>
+
+    <!-- GitHub Sponsors (lowest friction) -->
+    <div style="margin-bottom:0.8rem;">
+      <a href="https://github.com/sponsors/promptpolish-ai" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.7rem 1.5rem;background:linear-gradient(135deg,#6c5ce7,#a78bfa);color:white;text-decoration:none;border-radius:12px;font-weight:700;font-size:1rem;transition:transform 0.2s;margin-bottom:0.3rem;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+        ❤️ Sponsor via GitHub
+      </a>
+      <p style="color:var(--text2);font-size:0.75rem;">Recurring or one-time · Any amount helps</p>
+    </div>
+
+    <!-- BTC secondary -->
+    <details style="margin-top:0.3rem;">
+      <summary style="color:var(--text2);font-size:0.8rem;cursor:pointer;">💎 Also accept Bitcoin</summary>
+      <div style="background:var(--surface2);padding:0.5rem 0.8rem;border-radius:8px;font-family:monospace;font-size:0.8rem;word-break:break-all;display:inline-block;color:var(--green);margin-top:0.5rem;">
+        1DQXcKwN95AWqwmwbscG7fRbEYMdWU9GB3
+      </div>
+    </details>
+
+    <p style="color:var(--text2);font-size:0.8rem;margin-top:0.8rem;">
+      <a href="https://gitscore-chi.vercel.app" style="color:var(--accent);">🔍 Free repo health score →</a>
+      <span style="color:var(--surface2);margin:0 0.5rem;">|</span>
+      <a href="https://gitscope-pro.vercel.app" style="color:var(--accent);">📦 $5 Premium templates →</a>
+    </p>
+  </section>
+
+  <footer>
+    Generated by <strong>GitScope</strong> · 6/5/2026, 6:25:35 PM
+  </footer>
+</div>
+
+<script>
+const defaultColors = [
+  'rgba(56, 189, 248, 0.8)', 'rgba(167, 139, 250, 0.8)',
+  'rgba(74, 222, 128, 0.8)', 'rgba(251, 191, 36, 0.8)',
+  'rgba(251, 113, 133, 0.8)', 'rgba(52, 211, 153, 0.8)',
+  'rgba(248, 113, 113, 0.8)', 'rgba(129, 140, 248, 0.8)',
+];
+
+// Timeline
+const timelineData = [{"week":"2026-05-11","count":2},{"week":"2026-05-18","count":14},{"week":"2026-05-25","count":24},{"week":"2026-06-01","count":10}];
+new Chart(document.getElementById('timelineChart'), {
+  type: 'bar',
+  data: {
+    labels: timelineData.map(d => d.week),
+    datasets: [{
+      label: 'Commits',
+      data: timelineData.map(d => d.count),
+      backgroundColor: 'rgba(56, 189, 248, 0.6)',
+      borderColor: 'rgba(56, 189, 248, 1)',
+      borderWidth: 1,
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#94a3b8', maxTicksLimit: 20, font: { size: 10 } }, grid: { color: 'rgba(51, 65, 85, 0.5)' } },
+      y: { ticks: { color: '#94a3b8', stepSize: 1, font: { size: 10 } }, grid: { color: 'rgba(51, 65, 85, 0.5)' } }
+    }
+  }
+});
+
+// Hourly
+const hourData = [1,2,3,0,2,4,7,5,1,7,3,6,5,1,0,0,0,0,0,0,0,0,1,2];
+const hourLabels = Array.from({length: 24}, (_, i) => {
+  const h = i % 12 || 12;
+  return i < 12 ? h + 'am' : h + 'pm';
+});
+new Chart(document.getElementById('hourChart'), {
+  type: 'bar',
+  data: {
+    labels: hourLabels,
+    datasets: [{
+      label: 'Commits',
+      data: hourData,
+      backgroundColor: hourData.map(v =>
+        v > 0 ? 'rgba(167, 139, 250, 0.7)' : 'rgba(51, 65, 85, 0.3)'
+      ),
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } },
+      y: { ticks: { color: '#94a3b8', stepSize: 1, font: { size: 10 } }, grid: { color: 'rgba(51, 65, 85, 0.5)' } }
+    }
+  }
+});
+
+// Day of week
+const dayData = [4,7,8,11,6,14,0];
+new Chart(document.getElementById('dayChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+    datasets: [{
+      data: dayData,
+      backgroundColor: ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899'],
+      borderColor: '#1e293b',
+      borderWidth: 2,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'right',
+        labels: { color: '#94a3b8', padding: 12, font: { size: 11 } }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
